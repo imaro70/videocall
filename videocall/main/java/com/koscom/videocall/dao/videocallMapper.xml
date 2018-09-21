@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.koscom.videocall.dao.Repository">
+	<insert id="insertClient"
+		parameterType="com.koscom.videocall.model.ClientVO">
+		INSERT INTO
+		clnt (clnt_id, clnt_ci, clnt_email, pwd,
+		name, dob, gender, hp_no,
+		sms_prsl_yn, post_no, dtl_addr, new_reg_date,
+		chg_date, out_yn)
+		VALUES
+		(#{clntid}, #{clntci}, #{clntemail}, #{pwd},
+		#{name}, #{dob}, #{gender}, #{hpno},
+		#{smsprslyn}, #{postno},
+		#{dtladdr}, SYSDATE(),
+		SYSDATE(), #{outyn})
+	</insert>
+
+	<select id="selectetClientInfo" parameterType="string"
+		resultType="com.koscom.videocall.model.ClientVO">
+		SELECT
+		clnt_id AS clntid,
+		clnt_ci AS clntci,
+		clnt_email AS
+		clntemail,
+		pwd AS pwd,
+		name AS name,
+		dob AS dob,
+		gender AS gender,
+		hp_no AS
+		hpno,
+		sms_prsl_yn AS smsprslyn,
+		post_no AS postno,
+		dtl_addr AS dtladdr,
+		new_reg_date AS newregdate,
+		chg_date AS chgdate,
+		out_yn AS outyn,
+		out_date AS outdate
+		FROM
+		clnt
+		WHERE clnt_email = #{clntemail} and pwd =
+		#{pwd}
+	</select>
+
+	<select id="selectAllClients"
+		resultType="com.koscom.videocall.model.ClientVO">
+		SELECT
+		clnt_id AS clntid,
+		clnt_ci AS clntci,
+		clnt_email AS
+		clntemail,
+		pwd AS pwd,
+		name AS name,
+		dob AS dob,
+		gender AS gender,
+		hp_no AS
+		hpno,
+		sms_prsl_yn AS smsprslyn,
+		post_no AS postno,
+		dtl_addr AS dtladdr,
+		new_reg_date AS newregdate,
+		chg_date AS chgdate,
+		out_yn AS outyn,
+		out_date AS outdate
+		FROM
+		clnt
+	</select>
+	<select id="getNextClientId" resultType="int">
+		SELECT
+		ifnull(MAX(clnt_id),0) + 1
+		FROM
+		clnt
+	</select>
+
+	<update id="updateClient"
+		parameterType="com.koscom.videocall.model.ClientVO">
+		UPDATE clnt
+		SET
+		name=#{name}, password=#{password},
+		phone=#{hpno}, email=#{clntemail}
+		WHERE
+		clntemail=#{clntemail}
+	</update>
+
+	<delete id="deleteClient"
+		parameterType="com.koscom.videocall.model.ClientVO">
+		DELETE FROM
+		clnt
+		WHERE
+		clnt_email = #{clntemail} and pwd =
+		#{pwd}
+	</delete>
+
+	<select id="getClientPassword" parameterType="string"
+		resultType="string">
+		SELECT
+		pwd
+		FROM
+		clnt
+		WHERE clnt_email=#{clntemail}
+	</select>
+
+	<select id="getClientCount" parameterType="string"
+		resultType="int">
+		SELECT
+		count(clnt_email)
+		FROM
+		clnt
+		WHERE
+		clnt_email=#{clntemail}
+	</select>
+
+	<select id="getFirmInfo"
+		resultType="com.koscom.videocall.model.FirmVO">
+		SELECT
+		firm_no AS firmno,
+		firm_nm AS firmnm,
+		tel_no AS telno,
+		e_mail AS email,
+		ceo_nm AS ceonm
+		FROM
+		FIRM
+		where firm_no=#{firmno}
+	</select>
+
+	<resultMap id="FirmMap"
+		type="com.koscom.videocall.model.FirmVO">
+		<result property="firmno" column="FIRM_NO" />
+		<result property="firmnm" column="FIRM_NM" />
+		<result property="telno" column="TEL_NO" />
+		<result property="email" column="E_MAIL" />
+		<result property="ceonm" column="CEO_NM" />
+	</resultMap>
+
+	<select id="getFirmList" resultMap="FirmMap">
+		SELECT
+		*
+		FROM
+		FIRM
+	</select>
+	<resultMap type="com.koscom.videocall.model.QuestionVO"
+		id="QuestionMap">
+		<result property="firmno" column="firm_no" />
+		<result property="qstnrver" column="qstnr_ver" />
+		<result property="qstnrno" column="qstnr_no" />
+		<result property="qstnrvar" column="qstnr_var" />
+		<result property="qstnrquest" column="qstnr_quest" />
+		<result property="qstnrqty" column="qstnr_qty" />
+		<result property="answrdupyn" column="answr_dup_yn" />
+		<result property="asgnscore" column="asgn_score" />
+		<result property="useyn" column="use_yn" />
+		<result property="regdate" column="reg_date" />
+	</resultMap>
+
+	<select id="getQuestionList" resultMap="QuestionMap">
+		SELECT
+		*
+		FROM
+		qstnr_base
+		Where firm_no = #{firmno}
+		and use_yn = '1'
+	</select>
+	<resultMap type="com.koscom.videocall.model.ChoiceVO"
+		id="ChoiceMap">
+		<result property="firmno" column="firm_no" />
+		<result property="qstnrver" column="qstnr_ver" />
+		<result property="qstnrno" column="qstnr_no" />
+		<result property="choicitemno" column="choic_item_no" />
+		<result property="choicitemcnts" column="choic_item_cnts" />
+		<result property="choicscore" column="choic_score" />
+	</resultMap>
+
+	<select id="getChoiceList" resultMap="ChoiceMap">
+		SELECT
+		*
+		FROM
+		qstnr_choic
+		Where firm_no = #{firmno}
+	</select>
+	<resultMap type="com.koscom.videocall.model.ProductVO"
+		id="ProductMap">
+		<result property="prdtcode" column="prdt_code" />
+		<result property="firmno" column="firm_no" />
+		<result property="prdtnm" column="prdt_nm" />
+		<result property="invstinclngrd" column="invst_incln_grd" />
+		<result property="mgmtpsnnm" column="mgmt_psn_nm" />
+		<result property="opsrtdt" column="op_srt_dt" />
+		<result property="openddt" column="op_end_dt" />
+		<result property="opamt" column="op_amt" />
+	</resultMap>
+	<select id="getProductListByGrade" resultMap="ProductMap">
+		SELECT
+		*
+		FROM PRODUCT
+		WHERE
+		firm_no = #{firmno}
+		and
+		invst_incln_grd <![CDATA[ <= ]]>
+		#{invstinclngrd}
+	</select>
+
+	<insert id="addResvCall" 
+		parameterType="com.koscom.videocall.model.ResvCallVO">
+		INSERT INTO RESV_CALL VALUES (
+		#{rsvDt},
+		#{clntCi},#{prdtCode},#{firmNo},#{hpNo},#{rsvSrtTime},#{rsvEndTime},#{callCmpltYn},#{videoCallNo})
+	</insert>
+
+	<resultMap type="com.koscom.videocall.model.ResvCallVO"
+		id="ResvCallMap">
+		<result property="rsvDt" column="rsv_dt" />
+		<result property="clntCi" column="clnt_ci" />
+		<result property="prdtCode" column="prdt_code" />
+		<result property="firmNo" column="firm_no" />
+		<result property="hpNo" column="hp_no" />
+		<result property="rsvSrtTime" column="rsv_srt_time" />
+		<result property="rsvEndTime" column="rsv_end_time" />
+		<result property="callCmpltYn" column="call_cmplt_yn" />
+		<result property="videoCallNo" column="video_call_no" />
+	</resultMap>
+
+	<select id="getResvCallList" resultMap="ResvCallMap">
+		SELECT * FROM
+		RESV_CALL
+		WHERE firm_no = #{firmNo}
+	</select>
+
+	<select id="getResvCall"
+		resultType="com.koscom.videocall.model.ResvCallVO">
+		SELECT * FROM
+		RESV_CALL
+		WHERE firm_no = #{firmNo}
+		AND clnt_ci = #{clntCi}
+		AND rsv_dt = #{rsvDt}
+		AND prdt_code = #{prdtCode}
+	</select>
+
+	<update id="updateCallCompleteYn"
+		parameterType="com.koscom.videocall.model.ResvCallVO">
+		UPDATE RESV_CALL
+		SET CALL_CMPLT_YN = #{callCmpltYn},
+		VIDEO_CALL_NO = #{videoCallNo}
+		WHERE RSV_DT = #{rsvDt}
+		AND CLNT_CI =
+		#{clntCi}
+		AND PRDT_CODE = #{prdtCode}
+		AND FIRM_NO = #{firmNo}
+	</update>
+
+
+</mapper>
